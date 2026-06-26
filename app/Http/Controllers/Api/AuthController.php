@@ -8,7 +8,6 @@ use App\Http\Requests\LoginRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Tymon\JwtAuth\Facades\JwtAuth;
 
 class AuthController extends Controller
 {
@@ -28,22 +27,24 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request)
     {
-        $token = JwtAuth::attempt($request->only('email', 'password'));
+        $user = User::where('email', $request->email)->first();
 
-        if (!$token) {
+        if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
+
+        $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json([
             'message' => 'Login successful',
             'token' => $token,
-            'user' => auth()->user(),
+            'user' => $user,
         ]);
     }
 
     public function logout()
     {
-        JwtAuth::logout();
+        auth()->user()->tokens()->delete();
         return response()->json(['message' => 'Logged out successfully']);
     }
 

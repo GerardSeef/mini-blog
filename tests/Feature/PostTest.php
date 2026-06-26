@@ -14,7 +14,7 @@ class PostTest extends TestCase
     public function test_user_can_create_post()
     {
         $user = User::factory()->create();
-        $token = auth('api')->attempt(['email' => $user->email, 'password' => 'password']);
+        $token = $user->createToken('test')->plainTextToken;
 
         $response = $this->withHeader('Authorization', "Bearer $token")
             ->postJson('/api/posts', [
@@ -32,7 +32,7 @@ class PostTest extends TestCase
         $otherUser = User::factory()->create();
         $post = Post::factory()->create(['user_id' => $owner->id]);
 
-        $token = auth('api')->attempt(['email' => $otherUser->email, 'password' => 'password']);
+        $token = $otherUser->createToken('test')->plainTextToken;
 
         $response = $this->withHeader('Authorization', "Bearer $token")
             ->putJson("/api/posts/{$post->id}", [

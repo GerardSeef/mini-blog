@@ -10,11 +10,11 @@ use App\Http\Controllers\Api\PostSummaryController;
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
-    Route::post('logout', [AuthController::class, 'logout'])->middleware('jwt.auth');
-    Route::get('me', [AuthController::class, 'me'])->middleware('jwt.auth');
+    Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+    Route::get('me', [AuthController::class, 'me'])->middleware('auth:sanctum');
 });
 
-Route::middleware('jwt.auth')->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('posts', PostController::class)->except(['destroy']);
     Route::delete('posts/{post}', [PostController::class, 'destroy']);
 

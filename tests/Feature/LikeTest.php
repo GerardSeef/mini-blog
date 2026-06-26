@@ -15,7 +15,7 @@ class LikeTest extends TestCase
     {
         $user = User::factory()->create();
         $post = Post::factory()->create();
-        $token = auth('api')->attempt(['email' => $user->email, 'password' => 'password']);
+        $token = $user->createToken('test')->plainTextToken;
 
         $response = $this->withHeader('Authorization', "Bearer $token")
             ->postJson("/api/posts/{$post->id}/like");
@@ -30,7 +30,7 @@ class LikeTest extends TestCase
         $post = Post::factory()->create();
         $post->likes()->create(['user_id' => $user->id]);
 
-        $token = auth('api')->attempt(['email' => $user->email, 'password' => 'password']);
+        $token = $user->createToken('test')->plainTextToken;
 
         $response = $this->withHeader('Authorization', "Bearer $token")
             ->postJson("/api/posts/{$post->id}/like");
@@ -45,7 +45,7 @@ class LikeTest extends TestCase
         $post = Post::factory()->create();
         $post->likes()->create(['user_id' => $user->id]);
 
-        $token = auth('api')->attempt(['email' => $user->email, 'password' => 'password']);
+        $token = $user->createToken('test')->plainTextToken;
 
         $response = $this->withHeader('Authorization', "Bearer $token")
             ->deleteJson("/api/posts/{$post->id}/like");

@@ -15,7 +15,7 @@ class CommentTest extends TestCase
     {
         $user = User::factory()->create();
         $post = Post::factory()->create();
-        $token = auth('api')->attempt(['email' => $user->email, 'password' => 'password']);
+        $token = $user->createToken('test')->plainTextToken;
 
         $response = $this->withHeader('Authorization', "Bearer $token")
             ->postJson("/api/posts/{$post->id}/comments", [

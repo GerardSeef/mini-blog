@@ -14,7 +14,7 @@ class LikeController extends Controller
             $post->likes()->create(['user_id' => auth()->id()]);
             return response()->json(['message' => 'Like added successfully'], 201);
         } catch (QueryException $e) {
-            if (str_contains($e->getMessage(), 'Duplicate') || str_contains($e->getMessage(), 'unique')) {
+            if (str_contains(strtolower($e->getMessage()), 'unique') || str_contains($e->getMessage(), 'Duplicate')) {
                 return response()->json(['message' => 'Already liked'], 409);
             }
             throw $e;
