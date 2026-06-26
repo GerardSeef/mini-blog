@@ -14,9 +14,11 @@ COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
 COPY . .
 
+RUN cp .env.example .env
+
 RUN composer install --no-interaction --optimize-autoloader
 
-RUN php artisan key:generate || true
+RUN php artisan key:generate
 
 EXPOSE 8000
 
