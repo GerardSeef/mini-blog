@@ -3,11 +3,9 @@ package com.miniblog.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,12 +19,6 @@ public class JwtProvider {
     @Value("${app.jwt.expiration}")
     private long jwtExpirationMs;
 
-    private SecretKey getSigningKey() {
-        String secret = jwtSecret.length() < 32 ?
-            jwtSecret.repeat((32 / jwtSecret.length()) + 1) : jwtSecret;
-        return Keys.hmacShaKeyFor(secret.substring(0, 32).getBytes());
-    }
-
     public String generateToken(Long userId, String email) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("sub", userId.toString());
@@ -35,23 +27,21 @@ public class JwtProvider {
             .setClaims(claims)
             .setIssuedAt(new Date())
             .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
-            .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+            .signWith(SignatureAlgorithm.HS256, jwtSecret)
             .compact();
     }
 
     public Long getUserIdFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-            .setSigningKey(getSigningKey())
-            .build()
+        Claims claims = Jwts.parser()
+            .setSigningKey(jwtSecret)
             .parseClaimsJws(token)
             .getBody();
         return Long.valueOf(claims.get("sub").toString());
     }
 
     public String getEmailFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-            .setSigningKey(getSigningKey())
-            .build()
+        Claims claims = Jwts.parser()
+            .setSigningKey(jwtSecret)
             .parseClaimsJws(token)
             .getBody();
         return claims.get("email", String.class);
@@ -59,9 +49,8 @@ public class JwtProvider {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
+            Jwts.parser()
+                .setSigningKey(jwtSecret)
                 .parseClaimsJws(token);
             return true;
         } catch (Exception e) {
