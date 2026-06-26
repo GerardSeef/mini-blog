@@ -1,15 +1,19 @@
 # API Mini-Blog
 
-API RESTful para una plataforma mini-blog construida con Laravel 12, autenticación basada en tokens con Sanctum, y PostgreSQL.
+Una API RESTful dual-stack completa para una plataforma mini-blog:
+- **Laravel 12** (PHP 8.2) con autenticación Sanctum en puerto **8000**
+- **Spring Boot 3.3** (Java 21) con autenticación JWT en puerto **8080**
+- Base de datos **PostgreSQL 16** compartida
 
 ## Características
 
-- Registro de usuarios y autenticación basada en tokens Sanctum
+- Registro de usuarios y autenticación basada en tokens (Sanctum/JWT)
 - Crear, leer, actualizar y eliminar posts (solo el propietario puede editar/eliminar)
 - Agregar y gestionar comentarios en posts
 - Funcionalidad de likes/dislikes con protección contra duplicados
 - Listados de posts paginados con conteos (sin consultas N+1)
 - Bonus: Resúmenes de posts impulsados por IA usando API Anthropic Claude
+- Bonus: Implementación completa en Java/Spring Boot con endpoints idénticos
 
 ## Configuración e Instalación
 
@@ -22,16 +26,19 @@ API RESTful para una plataforma mini-blog construida con Laravel 12, autenticaci
 
 ```bash
 # Clonar el repositorio
-git clone <repo-url>
+git clone https://github.com/GerardSeef/mini-blog.git
 cd mini-blog
 
-# Iniciar los servicios
+# Iniciar todos los servicios (Laravel, Java, PostgreSQL)
 docker-compose up -d
 
-# La API estará disponible en http://localhost:8000
+# Las APIs estarán disponibles en:
+# - Laravel:  http://localhost:8000/api
+# - Java:     http://localhost:8080/api
+# - BD:       localhost:5432
 ```
 
-### Configuración manual
+### Configuración manual (solo Laravel)
 
 ```bash
 # Instalar dependencias
@@ -43,8 +50,7 @@ cp .env.example .env
 # Generar clave de aplicación
 php artisan key:generate
 
-# Configurar base de datos (requiere PostgreSQL ejecutándose)
-# Editar .env con credenciales de BD, luego:
+# Configurar base de datos y ejecutar migraciones
 php artisan migrate
 
 # Iniciar el servidor
@@ -65,8 +71,15 @@ DB_DATABASE=miniblog
 DB_USERNAME=postgres
 DB_PASSWORD=postgres
 
-ANTHROPIC_API_KEY=sk-ant-xxx-opcional
+APP_KEY=base64:...  # Generada por php artisan key:generate
+
+ANTHROPIC_API_KEY=sk-ant-...  # Opcional, para feature de resúmenes con IA
 ```
+
+**Nota:** 
+- Laravel usa **Sanctum** para autenticación de tokens (sin config JWT requerida)
+- Java usa **JWT** (JJWT 0.9.1) con JWT_SECRET del entorno
+- Ambos se autentican contra la misma base de datos PostgreSQL compartida
 
 ## Endpoints de la API
 
@@ -125,10 +138,25 @@ php artisan test
 
 Ver `DECISIONS_ES.md` para explicaciones detalladas de todas las decisiones arquitectónicas.
 
-## Limitaciones Conocidas
+## Estado de Implementación
 
-- El endpoint de Java + Spring Boot está documentado pero no implementado
-- La integración de Anthropic API requiere una clave API válida (característica opcional)
+✅ **Todas las características requeridas implementadas:**
+- Autenticación de usuarios (Sanctum en Laravel, JWT en Java)
+- CRUD completo para posts, comentarios, likes
+- Paginación sin consultas N+1
+- Prevención segura de duplicados en likes (nivel BD)
+- Suite de pruebas integral (12 tests, 23 assertions)
+- Orquestación Docker Compose
+
+✅ **Ambas características bonus implementadas:**
+- Resúmenes impulsados por IA (API Anthropic Claude)
+- API completa Java/Spring Boot replica (dual-stack)
+
+⚠️ **Mejoras opcionales no incluidas:**
+- Verificación de email (marcado como opcional en requisitos)
+- Flujo de refresh token (tokens Sanctum son persistentes)
+- Rate limiting (no en requisitos)
+- Documentación Swagger/OpenAPI (lista de rutas en README suficiente)
 
 ## Licencia
 
