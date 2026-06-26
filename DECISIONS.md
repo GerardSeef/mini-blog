@@ -4,26 +4,31 @@
 
 **Decision:** Use Sanctum for API token authentication.
 
-**Why:**
-- Official Laravel package, better integration with Laravel ecosystem
-- Simpler implementation without external dependencies
-- Better middleware support out-of-the-box
-- Fewer compatibility issues with Laravel 12
-- Automatic migration handling
-- All 12 tests pass without workarounds
-- Production-ready with built-in token management
+**Why Sanctum over alternatives:**
 
-**Sanctum advantages:**
-- Stateless token-based authentication (ideal for APIs)
-- No sessions needed
-- Easy to test (simple `createToken()` method)
-- Tokens stored in database for revocation tracking
-- Built-in ability to revoke tokens immediately
-- Official Laravel support and documentation
+| Option | Pros | Cons | Verdict |
+|--------|------|------|---------|
+| **Sanctum** ✅ | Official Laravel package, zero external deps, built-in revocation, easy testing, automatic migrations | Slight DB overhead | **Best for this project** |
+| JWT (tymon/jwt-auth) | Stateless, minimal DB overhead | External dependency, namespace conflicts, more setup | ❌ Over-engineered for needs |
+| OAuth 2.0 | Industry standard, delegated auth | Massive overhead, unnecessary for single-app API | ❌ Overkill |
+| Laravel Sessions | Built-in | Stateful, not ideal for APIs, browser-dependent | ❌ Wrong pattern |
 
-**Trade-offs:**
+**Why Sanctum is perfect for mini-blog:**
+- **Official Laravel package** → guaranteed compatibility with Laravel 12, future updates
+- **Zero external dependencies** → no namespace conflicts, simpler deployments
+- **Built-in token revocation** → logout() immediately invalidates tokens
+- **Database-backed tokens** → can track active sessions, revoke specific tokens
+- **Automatic migrations** → setup is automatic via artisan commands
+- **Easy testing** → `$user->createToken('test')->plainTextToken` in tests
+- **Stateless for APIs** → no session state needed, perfect for REST APIs
+- **Production-ready** → used in production Laravel apps at scale
+
+**Trade-offs accepted:**
 - Database storage required for tokens (vs JWT's pure statelessness)
-- Slightly more overhead than pure JWT for high-volume APIs (negligible for this use case)
+  - *Justified because:* ability to revoke individual tokens is worth the small overhead
+  - *For this scale:* database overhead is negligible
+- Slightly more queries for token validation
+  - *Justified because:* official package optimizes this well enough
 
 ## 2. Database: PostgreSQL
 

@@ -4,26 +4,31 @@
 
 **Decisión:** Usar Sanctum para autenticación de tokens en API.
 
-**Por qué:**
-- Paquete oficial de Laravel, mejor integración con el ecosistema
-- Implementación más simple sin dependencias externas
-- Mejor soporte de middleware integrado
-- Menos problemas de compatibilidad con Laravel 12
-- Manejo automático de migraciones
-- Los 12 tests pasan sin workarounds
-- Listo para producción con gestión de tokens integrada
+**Por qué Sanctum sobre alternativas:**
 
-**Ventajas de Sanctum:**
-- Autenticación stateless basada en tokens (ideal para APIs)
-- Sin sesiones necesarias
-- Fácil de testear (método simple `createToken()`)
-- Tokens almacenados en BD para rastrear revocación
-- Capacidad integrada de revocar tokens inmediatamente
-- Soporte oficial de Laravel y documentación
+| Opción | Ventajas | Desventajas | Veredicto |
+|--------|----------|-------------|----------|
+| **Sanctum** ✅ | Paquete oficial, sin dependencias externas, revocación nativa, fácil testing, migraciones automáticas | Pequeño overhead de BD | **Mejor para este proyecto** |
+| JWT (tymon/jwt-auth) | Stateless, mínimo overhead de BD | Dependencia externa, conflictos de namespace, más setup | ❌ Sobre-ingenierizado |
+| OAuth 2.0 | Estándar industrial, auth delegada | Overhead masivo, innecesario para API único | ❌ Excesivo |
+| Laravel Sessions | Integrado nativamente | Stateful, no ideal para APIs, dependiente de navegador | ❌ Patrón incorrecto |
 
-**Trade-offs:**
-- Requiere almacenamiento en BD para tokens (vs JWT puro stateless)
-- Ligero overhead en APIs de alto volumen (negligible para este caso)
+**Por qué Sanctum es perfecto para mini-blog:**
+- **Paquete oficial de Laravel** → compatibilidad garantizada con Laravel 12, actualizaciones futuras
+- **Sin dependencias externas** → sin conflictos de namespace, despliegues más simples
+- **Revocación de tokens integrada** → logout() invalida tokens inmediatamente
+- **Tokens respaldados en BD** → permite rastrear sesiones activas, revocar tokens específicos
+- **Migraciones automáticas** → setup automático via comandos artisan
+- **Fácil de testear** → `$user->createToken('test')->plainTextToken` en tests
+- **Stateless para APIs** → sin estado de sesión necesario, perfecto para REST APIs
+- **Listo para producción** → usado en apps Laravel en producción a escala
+
+**Trade-offs aceptados:**
+- Almacenamiento de tokens en BD (vs JWT puro stateless)
+  - *Justificado porque:* la capacidad de revocar tokens individuales vale el pequeño overhead
+  - *Para esta escala:* el overhead de BD es negligible
+- Ligeramente más queries para validar tokens
+  - *Justificado porque:* el paquete oficial optimiza esto suficientemente bien
 
 ## 2. Base de Datos: PostgreSQL
 
