@@ -1,19 +1,30 @@
 # Technical Decisions - Mini-Blog API
 
-## 1. Authentication: JWT (tymon/jwt-auth)
+## 1. Authentication: Laravel Sanctum (switched from JWT)
 
-**Decision:** Use JWT (JSON Web Tokens) via tymon/jwt-auth package.
+**Initial Decision:** JWT (tymon/jwt-auth)  
+**Final Decision:** Laravel Sanctum
 
-**Why:** 
-- Stateless authentication, no sessions needed (ideal for APIs)
-- Standard approach in modern REST APIs
-- Easy to implement and test
-- Self-contained tokens with expiration
-- No database overhead for session management
+**Why we switched to Sanctum:**
+- Official Laravel package, better integration with Laravel ecosystem
+- Simpler implementation without external dependencies
+- Better middleware support out-of-the-box
+- Fewer compatibility issues with Laravel 12
+- Automatic migration handling
+- All 12 tests pass without workarounds
+- Production-ready with built-in token management
+
+**Sanctum advantages:**
+- Stateless token-based authentication (ideal for APIs)
+- No sessions needed
+- Easy to test (simple `createToken()` method)
+- Tokens stored in database for revocation tracking
+- Built-in ability to revoke tokens immediately
+- Official Laravel support and documentation
 
 **Trade-offs:**
-- Tokens can't be revoked instantly (blacklist mechanism is optional)
-- Slightly larger request headers due to token size
+- Database storage required for tokens (vs JWT's pure statelessness)
+- Slightly more overhead than pure JWT for high-volume APIs (negligible for this use case)
 
 ## 2. Database: PostgreSQL
 
@@ -107,7 +118,7 @@ try {
 ## What Was Left Out
 
 1. **Email verification** - Marked as "optional" in prueba_técnica; can add if needed
-2. **Refresh token mechanism** - JWT TTL sufficient for demo; can extend
+2. **Refresh token mechanism** - Sanctum tokens are persistent; logout() revokes them; can implement refresh flow if needed
 3. **Rate limiting** - Not required; can add middleware if needed
 4. **Request logging/audit trail** - Out of scope
 5. **API documentation (Swagger)** - Route list in README sufficient
