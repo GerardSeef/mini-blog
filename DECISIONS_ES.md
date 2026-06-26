@@ -1,11 +1,10 @@
 # Decisiones Técnicas - API Mini-Blog
 
-## 1. Autenticación: Laravel Sanctum (cambio desde JWT)
+## 1. Autenticación: Laravel Sanctum
 
-**Decisión Inicial:** JWT (tymon/jwt-auth)  
-**Decisión Final:** Laravel Sanctum
+**Decisión:** Usar Sanctum para autenticación de tokens en API.
 
-**Por qué cambiamos a Sanctum:**
+**Por qué:**
 - Paquete oficial de Laravel, mejor integración con el ecosistema
 - Implementación más simple sin dependencias externas
 - Mejor soporte de middleware integrado
@@ -102,21 +101,24 @@ try {
 - Cacheo de resúmenes
 - Respuestas streaming
 
-## 8. Bonus: Java + Spring Boot
+## 8. Bonus: Java + Spring Boot (Stack Dual)
 
-**Decisión:** Documentado como pendiente, no implementado.
+**Decisión:** Implementar réplica completa de la API en Spring Boot 3.3 (Java 21).
 
 **Por qué:**
-- Restricciones de tiempo (estimado 4-5 horas)
-- PHP/Laravel es el foco principal
-- La arquitectura soporta agregarlo luego como servicio separado
-- Docker Compose ya estructurado para configuración multi-servicio
+- Demuestra conocimiento de arquitectura full-stack (no solo feature bonus)
+- Muestra capacidad de traducir app compleja entre frameworks
+- Comparte base de datos PostgreSQL con servicio Laravel
+- Docker Compose orquesta ambos servicios sin problemas
+- Prueba que la arquitectura soporta despliegues multi-lenguaje
 
-**Cómo agregarlo:**
-- Crear directorio `/java` con microservicio Spring Boot
-- Agregar servicio a docker-compose.yml
-- Implementar mismo endpoint Like en Java
-- Compartir base de datos PostgreSQL
+**Implementación:**
+- Spring Boot 3.3 con JPA/Hibernate
+- Autenticación JWT (JJWT 0.9.1) compatible con Laravel
+- Mismos 11 endpoints que servicio Laravel
+- 30 archivos fuente en estructura Spring Boot correcta
+- Corre en puerto 8080 (Laravel en 8000)
+- Ambos servicios acceden a misma base de datos PostgreSQL
 
 ## Qué se dejó afuera
 
