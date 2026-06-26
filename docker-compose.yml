@@ -27,6 +27,29 @@ services:
       - mini-blog
     command: sh -c "[ ! -f .env ] && cp .env.example .env || true && composer install --no-interaction && php artisan migrate --force && php artisan serve --host=0.0.0.0"
 
+  java-api:
+    build:
+      context: ./java
+      dockerfile: Dockerfile
+    container_name: mini-blog-java-api
+    working_dir: /app
+    ports:
+      - "8080:8080"
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: miniblog
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET: test_secret_key_change_in_production
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - mini-blog
+
   db:
     image: postgres:16-alpine
     container_name: mini-blog-db
