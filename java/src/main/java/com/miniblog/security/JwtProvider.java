@@ -3,7 +3,6 @@ package com.miniblog.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -23,14 +22,14 @@ public class JwtProvider {
     private long jwtExpirationMs;
 
     private SecretKey getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret.length() < 32 ?
-            jwtSecret.repeat(2).substring(0, 32) : jwtSecret.substring(0, 32));
-        return Keys.hmacShaKeyFor(keyBytes);
+        String secret = jwtSecret.length() < 32 ?
+            jwtSecret.repeat((32 / jwtSecret.length()) + 1) : jwtSecret;
+        return Keys.hmacShaKeyFor(secret.substring(0, 32).getBytes());
     }
 
     public String generateToken(Long userId, String email) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("sub", userId);
+        claims.put("sub", userId.toString());
         claims.put("email", email);
         return Jwts.builder()
             .setClaims(claims)
